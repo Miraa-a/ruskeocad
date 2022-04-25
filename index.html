@@ -85,10 +85,10 @@
 		var loaderUrl = buildUrl + "/Build.loader.js";
 		var __timeKey = parseInt(new Date().getTime() / 3600000);
 		var config = {
-			dataUrl: buildUrl + "/Build.data.unityweb?time=" + __timeKey,
-			frameworkUrl: buildUrl + "/Build.framework.js.unityweb?time=" + __timeKey,
-			codeUrl: buildUrl + "/Build.wasm.unityweb?time=" + __timeKey,
-			streamingAssetsUrl: "StreamingAssets",
+			dataUrl: buildUrl + "/Build.data.gz",
+        frameworkUrl: buildUrl + "/Build.framework.js.gz",
+        codeUrl: buildUrl + "/Build.wasm.gz",
+        streamingAssetsUrl: "StreamingAssets",
 			companyName: "DefaultCompany",
 			productName: "RusCad",
 			productVersion: "0.1",
