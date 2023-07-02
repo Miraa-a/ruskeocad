@@ -198,11 +198,22 @@
   var rteConfig = {};
   window._Rte_Editor = rteEditor;
   window._Rte_Config = rteConfig;
+  function _setRteActive(active){
+    if (active) {
+      document
+        .querySelectorAll(".modal-blocker, rte-floatpanel")
+        .forEach(i => i.style.display = "inherit");
+      document.querySelector('#rtf-editor-root').style.display = 'flex';
+    } else {
+      document
+        .querySelectorAll(".modal-blocker, #rtf-editor-root, rte-floatpanel")
+        .forEach(i => i.style.display = "none");
+    }
+  }
   
   window._onRichTextOpen = (gameObjectName, methodName, rawHtmlVal, w, h) => {
     console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
-    document.querySelector('#rtf-editor-root').style.display = 'flex';
-    document.querySelector(".modal-blocker").style.display = "inherit";
+    _setRteActive(true);
     rteEditor.setHTMLCode("<p>Текст</p>");
     rteConfig = {
       gameObjectName,
@@ -216,30 +227,31 @@
   };
   
   window._closeRte = () => {
-    document.querySelector('#rtf-editor-root').style.display = 'none';
-    document.querySelector(".modal-blocker").style.display = "none";
+    _setRteActive(false);
   };
   
   window._acceptRte = () => {
     var editorEl = document.querySelector(".rte-editable");
     var canvas = document.querySelector("#rtf-canvas"), 
       context = canvas.getContext('2d');
-    canvas.width = editorEl.clientWidth;
-    canvas.height = editorEl.clientHeight;
     
     iframe2image(editorEl, function (err, img) {
       if (err) {
-        document.querySelector('#rtf-editor-root').style.display = 'none';
-        document.querySelector(".modal-blocker").style.display = "none";
+        _setRteActive(false);
         return console.error(err); 
       }
-      
+
+      canvas.width = editorEl.clientWidth;
+      canvas.height = editorEl.clientHeight;
       context.drawImage(img, 0, 0);
       var resImg = canvas.toDataURL('image/png');
-      window._unityInstance.SendMessage(rteConfig.gameObjectName, rteConfig.methodName, resImg.split(';base64,')[1] || resImg);
-      
-      document.querySelector('#rtf-editor-root').style.display = 'none';
-      document.querySelector(".modal-blocker").style.display = "none";
+      window._unityInstance
+        .SendMessage(
+          rteConfig.gameObjectName,
+          rteConfig.methodName,
+          resImg.split(';base64,')[1] || resImg
+        );
+      _setRteActive(false);
     });
   }
 </script>
