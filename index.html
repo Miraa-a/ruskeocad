@@ -24,6 +24,31 @@
           bottom: 0;
           background-color: rgba(0, 0, 0, 0);
       }
+      
+      .modal-blocker {
+          position: absolute;
+          z-index: 10000;
+          left: 100%;
+          top: 100%;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.5);
+      }
+      
+      #rtf-editor-root {
+          position: absolute;
+          z-index: 10001;
+          left: 25%;
+          top: 25%;
+
+          flex-direction: column;
+      }
+
+      rte-powerby {
+          opacity: 0;
+          max-width: 1px;
+          height: 1px;
+      }
   </style>
   <link rel="stylesheet" href="richtexteditor/style.css" />
 </head>
@@ -47,22 +72,35 @@
   </div>
   <video width=1 height=1 class="unity-preloader-video" src="media/logo.mp4"></video>
   <div class="unity-preloader-video-blocker"></div>
-  <div style="display:none;" id="rtf-editor-root">
-    <link rel="stylesheet" href="richtexteditor/rte_theme_default.css"/>
-    <script type="text/javascript" src="richtexteditor/rte.js"></script>
-    <script>RTE_DefaultConfig.url_base = 'richtexteditor'</script>
-    <script type="text/javascript" src='richtexteditor/plugins/all_plugins.js'></script>
-    <div id="div_editor1">
-      <p>Текст</p>
-    </div>
+</div>
 
-    <script>
-      var editor1cfg = {}
-      editor1cfg.toolbar = 'basic';
-      var editor1 = new RichTextEditor('#div_editor1', editor1cfg);
-    </script>
+<div style="display: none">
+  <canvas id="rtf-canvas"></canvas>
+</div>
+<div class="modal-blocker" style="display: none"></div>
+<div style="display:none;" id="rtf-editor-root">
+  <link rel="stylesheet" href="richtexteditor/rte_theme_default.css"/>
+  <script type="text/javascript" src="richtexteditor/rte.js"></script>
+  <script>RTE_DefaultConfig.url_base = 'richtexteditor'</script>
+  <script type="text/javascript" src='richtexteditor/plugins/all_plugins.js'></script>
+  <div id="div_editor1">
+    <p>Текст</p>
+  </div>
+
+  <div style="padding: 10px 0">
+      <button 
+        style="font-size: 20px;"
+        type="button"
+        onclick="_acceptRte()"
+      >Применить</button>
+      <button
+        style="font-size: 20px;"
+        type="button"
+        onclick="_closeRte()"
+      >Отмена</button>
   </div>
 </div>
+
 <script>
   const _width = 960;
   const _height = 600;
@@ -159,12 +197,20 @@
   document.body.appendChild(script);
 </script>
 
+<script src="richtexteditor/iframe2image.withdomvas.min.js"></script>
 <script>
   // RTF EDITOR
+  var rteEditor = new RichTextEditor('#div_editor1', {});
+  var rteConfig = {};
+  window._Rte_Editor = rteEditor;
+  window._Rte_Config = rteConfig;
+  
   window._onRichTextOpen = (gameObjectName, methodName, rawHtmlVal, w, h) => {
     console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
-    document.querySelector('#rtf-editor-root').style.display = 'inherit';
-    window._rtfOpenConf = {
+    document.querySelector('#rtf-editor-root').style.display = 'flex';
+    document.querySelector(".modal-blocker").style.display = "inherit";
+    rteEditor.setHTMLCode("<p>Текст</p>");
+    rteConfig = {
       gameObjectName,
       methodName,
       rawHtmlVal,
@@ -172,7 +218,29 @@
       h,
       unityInstance: window._unityInstance,
     };
+    window._Rte_Config = rteConfig;
   };
+  
+  window._closeRte = () => {
+    document.querySelector('#rtf-editor-root').style.display = 'none';
+    document.querySelector(".modal-blocker").style.display = "none";
+  };
+  
+  window._acceptRte = () => {
+    var editorEl = document.querySelector(".rte-editable");
+    var canvas = document.querySelector("#rtf-canvas"), 
+      context = canvas.getContext('2d');
+    canvas.width = editorEl.clientWidth;
+    canvas.height = editorEl.clientHeight;
+    
+    iframe2image(editorEl, function (err, img) {
+      if (err) { return console.error(err); }
+      context.drawImage(img, 0, 0);
+      var img = canvas.toDataURL('image/png').split(';base64,')[1];
+      window._unityInstance.SendMessage(rteConfig.gameObjectName, rteConfig.methodName, img);
+    });
+
+  }
 </script>
 <script src="richtexteditor/patch.js"></script>
 </body>
