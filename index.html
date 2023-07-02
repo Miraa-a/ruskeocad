@@ -28,8 +28,8 @@
       .modal-blocker {
           position: absolute;
           z-index: 10000;
-          left: 100%;
-          top: 100%;
+          left: 0;
+          top: 0;
           width: 100vw;
           height: 100vh;
           background: rgba(0,0,0,0.5);
@@ -42,12 +42,6 @@
           top: 25%;
 
           flex-direction: column;
-      }
-
-      rte-powerby {
-          opacity: 0;
-          max-width: 1px;
-          height: 1px;
       }
   </style>
   <link rel="stylesheet" href="richtexteditor/style.css" />
@@ -227,6 +221,9 @@
   };
   
   window._acceptRte = () => {
+    document.querySelector('#rtf-editor-root').style.display = 'none';
+    document.querySelector(".modal-blocker").style.display = "none";
+    
     var editorEl = document.querySelector(".rte-editable");
     var canvas = document.querySelector("#rtf-canvas"), 
       context = canvas.getContext('2d');
@@ -236,8 +233,8 @@
     iframe2image(editorEl, function (err, img) {
       if (err) { return console.error(err); }
       context.drawImage(img, 0, 0);
-      var img = canvas.toDataURL('image/png').split(';base64,')[1];
-      window._unityInstance.SendMessage(rteConfig.gameObjectName, rteConfig.methodName, img);
+      var resImg = canvas.toDataURL('image/png').split(';base64,')[1];
+      window._unityInstance.SendMessage(rteConfig.gameObjectName, rteConfig.methodName, resImg);
     });
 
   }
