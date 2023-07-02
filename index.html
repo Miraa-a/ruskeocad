@@ -233,8 +233,8 @@
     iframe2image(editorEl, function (err, img) {
       if (err) { return console.error(err); }
       context.drawImage(img, 0, 0);
-      var resImg = canvas.toDataURL('image/png').split(';base64,')[1];
-      window._unityInstance.SendMessage(rteConfig.gameObjectName, rteConfig.methodName, resImg);
+      var resImg = canvas.toDataURL('image/png');
+      window._unityInstance.SendMessage(rteConfig.gameObjectName, rteConfig.methodName, resImg.split(';base64,')[1] || resImg);
     });
 
   }
