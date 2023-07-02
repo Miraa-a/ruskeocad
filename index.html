@@ -43,6 +43,10 @@
 
           flex-direction: column;
       }
+      
+      rte-content {
+          background: #68615b;
+      }
   </style>
   <link rel="stylesheet" href="richtexteditor/style.css" />
 </head>
@@ -214,7 +218,7 @@
   window._onRichTextOpen = (gameObjectName, methodName, rawHtmlVal, w, h) => {
     console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
     _setRteActive(true);
-    rteEditor.setHTMLCode("<p>Текст</p>");
+    rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
     rteConfig = {
       gameObjectName,
       methodName,
