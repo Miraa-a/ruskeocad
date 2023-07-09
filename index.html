@@ -218,7 +218,13 @@
   window._onRichTextOpen = (gameObjectName, methodName, rawHtmlVal, w, h) => {
     console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
     _setRteActive(true);
-    rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
+    
+    if(rawHtmlVal) {
+		rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
+	} else { 
+		rteEditor.setHTMLCode(rawHtmlVal);
+	}
+	
     rteConfig = {
       gameObjectName,
       methodName,
@@ -249,11 +255,19 @@
       canvas.height = editorEl.clientHeight;
       context.drawImage(img, 0, 0);
       var resImg = canvas.toDataURL('image/png');
+      var methods = rteConfig.methodName.split(',');
       window._unityInstance
         .SendMessage(
           rteConfig.gameObjectName,
-          rteConfig.methodName,
+          methods[0],
           resImg.split(';base64,')[1] || resImg
+        );
+        
+	  window._unityInstance
+        .SendMessage(
+          rteConfig.gameObjectName,
+          methods[1],
+          _Rte_Editor.getHTML()
         );
       _setRteActive(false);
     });
