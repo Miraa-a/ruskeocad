@@ -219,10 +219,10 @@
     console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
     _setRteActive(true);
     
-    if(rawHtmlVal) {
-		rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
-	} else { 
+    if (rawHtmlVal) {
 		rteEditor.setHTMLCode(rawHtmlVal);
+	} else { 
+		rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
 	}
 	
     rteConfig = {
