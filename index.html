@@ -217,7 +217,7 @@
 		"Times New Roman",
 		"Verdana",
 		...additionalConf.fontNameItems
-		]
+		].join(",")
 	});
 	window.rteConfig = {};
 	window._Rte_Editor = rteEditor;
@@ -849,8 +849,8 @@
 		"ZionTrainPro-Regular.woff"
 	];
 	var loadedFontNames = fontFiles.map(name => {
-	    const fontFaceName = name.split(".")[0].replaceAll(/[\-\_]/g, " "); 
-		const myFont = new FontFace(fontFaceName, 'url(fonts/'+encodeURIComponent(name)+')');
+	    var fontFaceName = name.split(".")[0].replaceAll(/[\-\_]/g, " "); 
+		var myFont = new FontFace(fontFaceName, 'url(fonts/'+encodeURIComponent(name)+')');
 		myFont.load().then(()=> {
 			document.fonts.add(myFont);
 		});
