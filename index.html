@@ -198,80 +198,667 @@
 <script src="richtexteditor/iframe2image.withdomvas.min.js"></script>
 <script>
   // RTF EDITOR
-  var rteEditor = new RichTextEditor('#div_editor1', {});
-  var rteConfig = {};
-  window._Rte_Editor = rteEditor;
-  window._Rte_Config = rteConfig;
-  function _setRteActive(active){
-    if (active) {
-      document
-        .querySelectorAll(".modal-blocker, rte-floatpanel")
-        .forEach(i => i.style.display = "inherit");
-      document.querySelector('#rtf-editor-root').style.display = 'flex';
-    } else {
-      document
-        .querySelectorAll(".modal-blocker, #rtf-editor-root, rte-floatpanel")
-        .forEach(i => i.style.display = "none");
-    }
-  }
+  function _initRteEdit(additionalConf) {
+	if (!additionalConf) additionalConf = {};
+	if (!additionalConf.fontNameItems) additionalConf.fontNameItems = [];
   
-  window._onRichTextOpen = (gameObjectName, methodName, rawHtmlVal, w, h) => {
-    console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
-    _setRteActive(true);
-    
-    if (rawHtmlVal) {
-		rteEditor.setHTMLCode(rawHtmlVal);
-	} else { 
-		rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
+	window.rteEditor = new RichTextEditor('#div_editor1', {
+		fontNameItems: [
+		"Arial",
+		"Arial Black",
+		"Comic Sans MS",
+		"Courier New",
+		"Tahoma",
+		"Georgia",
+		"Helvetica",
+		"Segoe UI",
+		"Sans-Serif",
+		"Impact",
+		"Times New Roman",
+		"Verdana",
+		...additionalConf.fontNameItems
+		]
+	});
+	window.rteConfig = {};
+	window._Rte_Editor = rteEditor;
+	window._Rte_Config = rteConfig;
+	function _setRteActive(active){
+		if (active) {
+		  document
+			.querySelectorAll(".modal-blocker, rte-floatpanel")
+			.forEach(i => i.style.display = "inherit");
+		  document.querySelector('#rtf-editor-root').style.display = 'flex';
+		} else {
+		  document
+			.querySelectorAll(".modal-blocker, #rtf-editor-root, rte-floatpanel")
+			.forEach(i => i.style.display = "none");
+		}
 	}
-	
-    rteConfig = {
-      gameObjectName,
-      methodName,
-      rawHtmlVal,
-      w,
-      h,
-      unityInstance: window._unityInstance,
-    };
-    window._Rte_Config = rteConfig;
-  };
-  
-  window._closeRte = () => {
-    _setRteActive(false);
-  };
-  
-  window._acceptRte = () => {
-    var editorEl = document.querySelector(".rte-editable");
-    var canvas = document.querySelector("#rtf-canvas"), 
-      context = canvas.getContext('2d');
-    
-    iframe2image(editorEl, function (err, img) {
-      if (err) {
-        _setRteActive(false);
-        return console.error(err); 
-      }
 
-      canvas.width = editorEl.clientWidth;
-      canvas.height = editorEl.clientHeight;
-      context.drawImage(img, 0, 0);
-      var resImg = canvas.toDataURL('image/png');
-      var methods = rteConfig.methodName.split(',');
-      window._unityInstance
-        .SendMessage(
-          rteConfig.gameObjectName,
-          methods[0],
-          resImg.split(';base64,')[1] || resImg
-        );
-        
-	  window._unityInstance
-        .SendMessage(
-          rteConfig.gameObjectName,
-          methods[1],
-          _Rte_Editor.getHTML()
-        );
-      _setRteActive(false);
-    });
+	window._onRichTextOpen = (gameObjectName, methodName, rawHtmlVal, w, h) => {
+		console.log('Received rtf open', [gameObjectName, methodName, rawHtmlVal, w, h]);
+		_setRteActive(true);
+
+		if (rawHtmlVal) {
+			rteEditor.setHTMLCode(rawHtmlVal);
+		} else { 
+			rteEditor.setHTMLCode("<p style=\"color: rgb(255, 255, 255);\">Текст</p>");
+		}
+
+		rteConfig = {
+		  gameObjectName,
+		  methodName,
+		  rawHtmlVal,
+		  w,
+		  h,
+		  unityInstance: window._unityInstance,
+		};
+		window._Rte_Config = rteConfig;
+	};
+
+	window._closeRte = () => {
+		_setRteActive(false);
+	};
+
+	window._acceptRte = () => {
+		var editorEl = document.querySelector(".rte-editable");
+		var canvas = document.querySelector("#rtf-canvas"), 
+		  context = canvas.getContext('2d');
+
+		iframe2image(editorEl, function (err, img) {
+		  if (err) {
+			_setRteActive(false);
+			return console.error(err); 
+		  }
+
+		  canvas.width = editorEl.clientWidth;
+		  canvas.height = editorEl.clientHeight;
+		  context.drawImage(img, 0, 0);
+		  var resImg = canvas.toDataURL('image/png');
+		  var methods = rteConfig.methodName.split(',');
+		  window._unityInstance
+			.SendMessage(
+			  rteConfig.gameObjectName,
+			  methods[0],
+			  resImg.split(';base64,')[1] || resImg
+			);
+			
+		  window._unityInstance
+			.SendMessage(
+			  rteConfig.gameObjectName,
+			  methods[1],
+			  _Rte_Editor.getHTML()
+			);
+		  _setRteActive(false);
+		});
+	}
   }
+  
+	var fontFiles = [
+		"AdineKirnberg-Regular.woff",
+		"AeroMatics-Bold.woff",
+		"AeroMatics-BoldItalic.woff",
+		"AeroMatics-Italic.woff",
+		"AgoraSansPro-Black.woff",
+		"AgoraSansPro-BlackItalic.woff",
+		"AgoraSansPro-Bold.woff",
+		"AgoraSansPro-BoldItalic.woff",
+		"AgoraSansPro-Italic.woff",
+		"AgoraSansPro-Light.woff",
+		"AgoraSansPro-LightItalic.woff",
+		"AgoraSansPro-Medium.woff",
+		"AgoraSansPro-MediumItalic.woff",
+		"AgoraSansPro-Regular.woff",
+		"AgoraSansPro-Thin.woff",
+		"AgoraSansPro-ThinItalic.woff",
+		"AgoraSansPro-UltraBlack.woff",
+		"AgoraSansPro-UltraBlackItalic.woff",
+		"AgoraSansPro-XThin.woff",
+		"AgoraSansPro-XThinItalic.woff",
+		"AleksandraC-Regular.woff",
+		"AlexandraScript-Regular.woff",
+		"AnfisaGrotesk-Regular.woff",
+		"AnonymousPro-Bold.woff",
+		"AnonymousPro-BoldItalic.woff",
+		"AnonymousPro-Italic.woff",
+		"AnonymousPro-Regular.woff",
+		"Arial-Black.woff",
+		"Arial-Bold.woff",
+		"Arial-BoldItalic.woff",
+		"Arial-Italic.woff",
+		"Arial-Regular.woff",
+		"ArialNarrow-Bold.woff",
+		"ArialNarrow-BoldItalic.woff",
+		"ArialNarrow-Italic.woff",
+		"ArialNarrow-Regular.woff",
+		"BeVietnam-Bold.woff",
+		"BeVietnam-BoldItalic.woff",
+		"BeVietnam-ExtraBold.woff",
+		"BeVietnam-ExtraBoldItalic.woff",
+		"BeVietnam-Italic.woff",
+		"BeVietnam-Light.woff",
+		"BeVietnam-LightItalic.woff",
+		"BeVietnam-Medium.woff",
+		"BeVietnam-MediumItalic.woff",
+		"BeVietnam-Regular.woff",
+		"BeVietnam-SemiBold.woff",
+		"BeVietnam-SemiBoldItalic.woff",
+		"BeVietnam-Thin.woff",
+		"BeVietnam-ThinItalic.woff",
+		"BoomBoom-Regular.woff",
+		"CenturyGothic-Regular.woff",
+		"ClarimoUDPE-Bold.woff",
+		"ClarimoUDPE-BoldItalic.woff",
+		"ClarimoUDPE-DemiBold.woff",
+		"ClarimoUDPE-DemiBoldItalic.woff",
+		"ClarimoUDPE-ExtraLight.woff",
+		"ClarimoUDPE-ExtraLightItalic.woff",
+		"ClarimoUDPE-Heavy.woff",
+		"ClarimoUDPE-HeavyItalic.woff",
+		"ClarimoUDPE-Light.woff",
+		"ClarimoUDPE-LightItalic.woff",
+		"ClarimoUDPE-Medium.woff",
+		"ClarimoUDPE-MediumItalic.woff",
+		"ClarimoUDPE-Regular.woff",
+		"ClarimoUDPE-RegularItalic.woff",
+		"ClarimoUDPE-Ultra.woff",
+		"ClarimoUDPE-UltraItalic.woff",
+		"CyrillicaBulgarian-Regular.woff",
+		"CyrillicOld-Bold.woff",
+		"DidactGothic-Regular.woff",
+		"Exo2-Black.woff",
+		"Exo2-BlackItalic.woff",
+		"Exo2-Bold.woff",
+		"Exo2-BoldItalic.woff",
+		"Exo2-ExtraBold.woff",
+		"Exo2-ExtraBoldItalic.woff",
+		"Exo2-ExtraLight.woff",
+		"Exo2-ExtraLightItalic.woff",
+		"Exo2-Italic.woff",
+		"Exo2-Light.woff",
+		"Exo2-LightItalic.woff",
+		"Exo2-Medium.woff",
+		"Exo2-MediumItalic.woff",
+		"Exo2-Regular.woff",
+		"Exo2-SemiBold.woff",
+		"Exo2-Thin.woff",
+		"Exo2-ThinItalic.woff",
+		"FiraMono-Bold.woff",
+		"FiraMono-Regular.woff",
+		"FiraSans-Bold.woff",
+		"FiraSans-BoldItalic.woff",
+		"FiraSans-Italic.woff",
+		"FiraSans-Regular.woff",
+		"FMBolyarSansPro-100.woff",
+		"FMBolyarSansPro-200.woff",
+		"FMBolyarSansPro-300.woff",
+		"FMBolyarSansPro-400.woff",
+		"FMBolyarSansPro-500.woff",
+		"FMBolyarSansPro-600.woff",
+		"FMBolyarSansPro-700.woff",
+		"FMBolyarSansPro-800.woff",
+		"FMBolyarSansPro-900.woff",
+		"Futura-Bold.woff",
+		"Futura-Regular.woff",
+		"FuturaCondensed-Regular.woff",
+		"FuturaRound-Bold.woff",
+		"FuturaRound-BoldItalic.woff",
+		"Georgia-Bold.woff",
+		"Georgia-BoldItalic.woff",
+		"Georgia-Italic.woff",
+		"Georgia-Regular.woff",
+		"GillSans-Regular.woff",
+		"GothamPro-Black.woff",
+		"GothamPro-BlackItalic.woff",
+		"GothamPro-Bold.woff",
+		"GothamPro-BoldItalic.woff",
+		"GothamPro-Italic.woff",
+		"GothamPro-Light.woff",
+		"GothamPro-LightItalic.woff",
+		"GothamPro-Medium.woff",
+		"GothamPro-MediumItalic.woff",
+		"GothamPro-Regular.woff",
+		"GothamProNarrow-Bold.woff",
+		"GothamProNarrow-Medium.woff",
+		"Grandis-Black.woff",
+		"Grandis-BlackItalic.woff",
+		"Grandis-Bold.woff",
+		"Grandis-BoldItalic.woff",
+		"Grandis-Light.woff",
+		"Grandis-LightItalic.woff",
+		"Grandis-Medium.woff",
+		"Grandis-MediumItalic.woff",
+		"Grandis-Regular.woff",
+		"Grandis-RegularItalic.woff",
+		"Grandis-Thin.woff",
+		"Grandis-ThinItalic.woff",
+		"GrandisCondensed-Black.woff",
+		"GrandisCondensed-BlackItalic.woff",
+		"GrandisCondensed-Bold.woff",
+		"GrandisCondensed-BoldItalic.woff",
+		"GrandisCondensed-Light.woff",
+		"GrandisCondensed-LightItalic.woff",
+		"GrandisCondensed-Medium.woff",
+		"GrandisCondensed-MediumItalic.woff",
+		"GrandisCondensed-Regular.woff",
+		"GrandisCondensed-RegularItalic.woff",
+		"GrandisCondensed-Thin.woff",
+		"GrandisCondensed-ThinItalic.woff",
+		"GrandisExtended-Black.woff",
+		"GrandisExtended-BlackItalic.woff",
+		"GrandisExtended-Bold.woff",
+		"GrandisExtended-BoldItalic.woff",
+		"GrandisExtended-Light.woff",
+		"GrandisExtended-LightItalic.woff",
+		"GrandisExtended-Medium.woff",
+		"GrandisExtended-MediumItalic.woff",
+		"GrandisExtended-Regular.woff",
+		"GrandisExtended-RegularItalic.woff",
+		"GrandisExtended-Thin.woff",
+		"GrandisExtended-ThinItalic.woff",
+		"HarryPotter-Regular.woff",
+		"HeliosCond-Bold.woff",
+		"HeliosCond-BoldItalic.woff",
+		"HeliosCond-Italic.woff",
+		"HeliosCond-Regular.woff",
+		"Helvetica-Black.woff",
+		"Helvetica-BlackItalic.woff",
+		"Helvetica-Bold.woff",
+		"Helvetica-BoldItalic.woff",
+		"Helvetica-Heavy.woff",
+		"Helvetica-HeavyItalic.woff",
+		"Helvetica-Italic.woff",
+		"Helvetica-Light.woff",
+		"Helvetica-LightItalic.woff",
+		"Helvetica-Medium.woff",
+		"Helvetica-Regular.woff",
+		"Helvetica-Thin.woff",
+		"Helvetica-ThinItalic.woff",
+		"Helvetica-UltraLight.woff",
+		"Helvetica-UltraLightItalic.woff",
+		"Institut-Regular.woff",
+		"Inter-Black.woff",
+		"Inter-Bold.woff",
+		"Inter-ExtraBold.woff",
+		"Inter-Light.ttf",
+		"Inter-Regular.woff",
+		"Inter-SemiBold.woff",
+		"Inter-Thin.ttf",
+		"KardinalPro-Black.woff",
+		"KardinalPro-BlackItalic.woff",
+		"KardinalPro-Bold.woff",
+		"KardinalPro-BoldItalic.woff",
+		"KardinalPro-ExtraBold.woff",
+		"KardinalPro-ExtraBoldItalic.woff",
+		"KardinalPro-ExtraLight.woff",
+		"KardinalPro-ExtraLightItalic.woff",
+		"KardinalPro-Italic.woff",
+		"KardinalPro-Light.woff",
+		"KardinalPro-LightItalic.woff",
+		"KardinalPro-Medium.woff",
+		"KardinalPro-MediumItalic.woff",
+		"KardinalPro-Regular.woff",
+		"KardinalPro-Thin.woff",
+		"KardinalPro-ThinItalic.woff",
+		"Liberal-Black.woff",
+		"Liberal-Bold.woff",
+		"Liberal-ExtraBold.woff",
+		"Liberal-ExtraLight.woff",
+		"Liberal-Light.woff",
+		"Liberal-Regular.woff",
+		"Liberal-SemiBold.woff",
+		"Liberal-Thin.woff",
+		"Liberal-UltraBold.woff",
+		"Liberal-UltraLight.woff",
+		"Lunar-Bold.woff",
+		"Lunar-Light.woff",
+		"Lunar-Regular.woff",
+		"MakroXM-Black.woff",
+		"MakroXM-BlackItalic.woff",
+		"MakroXM-Bold.woff",
+		"MakroXM-BoldItalic.woff",
+		"MakroXM-ExtraBold.woff",
+		"MakroXM-ExtraBoldItalic.woff",
+		"MakroXM-Italic.woff",
+		"MakroXM-Light.woff",
+		"MakroXM-LightItalic.woff",
+		"MakroXM-Medium.woff",
+		"MakroXM-MediumItalic.woff",
+		"MakroXM-Regular.woff",
+		"Monaco-Regular.ttf",
+		"Montserrat-Black.woff",
+		"Montserrat-BlackItalic.woff",
+		"Montserrat-Bold.woff",
+		"Montserrat-BoldItalic.woff",
+		"Montserrat-ExtraBold.woff",
+		"Montserrat-ExtraBoldItalic.woff",
+		"Montserrat-ExtraLight.woff",
+		"Montserrat-ExtraLightItalic.woff",
+		"Montserrat-Italic.woff",
+		"Montserrat-Light.woff",
+		"Montserrat-LightItalic.woff",
+		"Montserrat-Medium.woff",
+		"Montserrat-MediumItalic.woff",
+		"Montserrat-Regular.woff",
+		"Montserrat-SemiBold.woff",
+		"Montserrat-SemiBoldItalic.woff",
+		"Montserrat-Thin.woff",
+		"Montserrat-ThinItalic.woff",
+		"MuseoSans-Black.woff",
+		"MuseoSans-BlackItalic.woff",
+		"MuseoSans-Bold.woff",
+		"MuseoSans-BoldItalic.woff",
+		"MuseoSans-Italic.woff",
+		"MuseoSans-Light.woff",
+		"MuseoSans-LightItalic.woff",
+		"MuseoSans-Medium.woff",
+		"MuseoSans-MediumItalic.woff",
+		"MuseoSans-Regular.woff",
+		"MuseoSansCyrl-100.woff",
+		"MuseoSansCyrl-100Italic.woff",
+		"MuseoSansCyrl-300.woff",
+		"MuseoSansCyrl-300Italic.woff",
+		"MuseoSansCyrl-500.woff",
+		"MuseoSansCyrl-500Italic.woff",
+		"MuseoSansCyrl-700.woff",
+		"MuseoSansCyrl-700Italic.woff",
+		"MuseoSansCyrl-900.woff",
+		"MuseoSansCyrl-900Italic.woff",
+		"MyriadProCond-Bold.woff",
+		"MyriadProCond-BoldItalic.woff",
+		"MyriadProCond-Italic.woff",
+		"MyriadProCond-Regular.woff",
+		"Normatica-Black.woff",
+		"Normatica-BlackItalic.woff",
+		"Normatica-Bold.woff",
+		"Normatica-BoldItalic.woff",
+		"Normatica-Light.woff",
+		"Normatica-LightItalic.woff",
+		"Normatica-Medium.woff",
+		"Normatica-MediumItalic.woff",
+		"Normatica-Regular.woff",
+		"Normatica-RegularItalic.woff",
+		"Normatica-Thin.woff",
+		"Normatica-ThinItalic.woff",
+		"ObelixPro-Regular.woff",
+		"OfficinaSansC-Bold.woff",
+		"OfficinaSansC-BoldItalic.woff",
+		"OfficinaSerif-Bold.woff",
+		"OfficinaSerif-BoldItalic.woff",
+		"OfficinaSerif-Book.woff",
+		"OfficinaSerif-BookItalic.woff",
+		"OfficinaSerif-Medium.woff",
+		"OfficinaSerif-MediumItalic.woff",
+		"Parangon-110C.woff",
+		"Parangon-120C.woff",
+		"Parangon-130C.woff",
+		"Parangon-210C.woff",
+		"Parangon-220C.woff",
+		"Parangon-230C.woff",
+		"Parangon-310C.woff",
+		"Parangon-320C.woff",
+		"Parangon-330C.woff",
+		"Parangon-410C.woff",
+		"Parangon-420C.woff",
+		"Parangon-430C.woff",
+		"Parangon-510C.woff",
+		"Parangon-520C.woff",
+		"Parangon-530C.woff",
+		"PFCentroSlabPro-Bold.woff",
+		"PFCentroSlabPro-BoldItalic.woff",
+		"PFCentroSlabPro-Light.woff",
+		"PFCentroSlabPro-Medium.woff",
+		"PFCentroSlabPro-MediumItalic.woff",
+		"PFCentroSlabPro-Regular.woff",
+		"PFDin-Display.woff",
+		"PFDin-Medium.woff",
+		"PFDinCondensed-Light.woff",
+		"PFDinCondensed-Medium.woff",
+		"PFDinCondensed-Regular.woff",
+		"PFSquareSansPro-Medium.woff",
+		"PlayfairDisplaySC-Bold.woff",
+		"PlayfairDisplaySC-BoldItalic.woff",
+		"PlayfairDisplaySC-Italic.woff",
+		"PlayfairDisplaySC-Regular.woff",
+		"PoiretOne-Normal.woff",
+		"PoluUstav-Regular.woff",
+		"ProfilePro-Black.woff",
+		"ProfilePro-BlackIta.woff",
+		"ProfilePro-Bold.woff",
+		"ProfilePro-BoldIta.woff",
+		"ProfilePro-ExtraLight.woff",
+		"ProfilePro-ExtraLightIta.woff",
+		"ProfilePro-Ita.woff",
+		"ProfilePro-Light.woff",
+		"ProfilePro-LightIta.woff",
+		"ProfilePro-Medium.woff",
+		"ProfilePro-MediumIta.woff",
+		"ProfilePro-Regular.woff",
+		"ProfilePro-Thin.woff",
+		"ProfilePro-ThinIta.woff",
+		"ProstoSans-Bold.woff",
+		"ProximaNova-Black.woff",
+		"ProximaNova-Bold.woff",
+		"ProximaNova-Regular.woff",
+		"ProximaSoft-Black.woff",
+		"ProximaSoft-BlackIt.woff",
+		"ProximaSoft-Bold.woff",
+		"ProximaSoft-BoldIt.woff",
+		"ProximaSoft-ExtraBold.woff",
+		"ProximaSoft-ExtraBoldIt.woff",
+		"ProximaSoft-Light.woff",
+		"ProximaSoft-LightIt.woff",
+		"ProximaSoft-Medium.woff",
+		"ProximaSoft-MediumIt.woff",
+		"ProximaSoft-Regular.woff",
+		"ProximaSoft-RegularIt.woff",
+		"ProximaSoft-SemiBold.woff",
+		"ProximaSoft-SemiBoldIt.woff",
+		"ProximaSoft-Thin.woff",
+		"ProximaSoft-ThinIt.woff",
+		"ProximaSoftCond-Black.woff",
+		"ProximaSoftCond-BlackIt.woff",
+		"ProximaSoftCond-Bold.woff",
+		"ProximaSoftCond-BoldIt.woff",
+		"ProximaSoftCond-ExtraBold.woff",
+		"ProximaSoftCond-ExtraBoldIt.woff",
+		"ProximaSoftCond-Light.woff",
+		"ProximaSoftCond-LightIt.woff",
+		"ProximaSoftCond-Medium.woff",
+		"ProximaSoftCond-MediumIt.woff",
+		"ProximaSoftCond-Regular.woff",
+		"ProximaSoftCond-RegularIt.woff",
+		"ProximaSoftCond-SemiBold.woff",
+		"ProximaSoftCond-SemiBoldIt.woff",
+		"ProximaSoftCond-Thin.woff",
+		"ProximaSoftCond-ThinIt.woff",
+		"ProximaSoftExCn-Black.woff",
+		"ProximaSoftExCn-BlackIt.woff",
+		"ProximaSoftExCn-Bold.woff",
+		"ProximaSoftExCn-BoldIt.woff",
+		"ProximaSoftExCn-DemiBold.woff",
+		"ProximaSoftExCn-DemiBoldIt.woff",
+		"ProximaSoftExCn-ExtraBold.woff",
+		"ProximaSoftExCn-ExtraBoldIt.woff",
+		"ProximaSoftExCn-Light.woff",
+		"ProximaSoftExCn-LightIt.woff",
+		"ProximaSoftExCn-Medium.woff",
+		"ProximaSoftExCn-MediumIt.woff",
+		"ProximaSoftExCn-Regular.woff",
+		"ProximaSoftExCn-RegularIt.woff",
+		"ProximaSoftExCn-Thin.woff",
+		"ProximaSoftExCn-ThinIt.woff",
+		"PTMono-Regular.woff",
+		"PTSans-Bold.woff",
+		"PTSans-Italic.woff",
+		"PTSans-Regular.woff",
+		"PTSansNarrow-Bold.woff",
+		"PTSerif-Bold.woff",
+		"PTSerif-BoldItalic.woff",
+		"PTSerif-Italic.woff",
+		"PTSerif-Regular.woff",
+		"PTSerifCaption-Italic.woff",
+		"PTSerifCaption-Regular.woff",
+		"Qiltray-Condensed.woff",
+		"Roboto-Black.woff",
+		"Roboto-BlackItalic.woff",
+		"Roboto-Bold.woff",
+		"Roboto-BoldItalic.woff",
+		"Roboto-Italic.woff",
+		"Roboto-Light.woff",
+		"Roboto-LightItalic.woff",
+		"Roboto-Medium.woff",
+		"Roboto-MediumItalic.woff",
+		"Roboto-Regular.woff",
+		"Roboto-Thin.woff",
+		"Roboto-ThinItalic.woff",
+		"RobotoCondensed-Bold.woff",
+		"RobotoCondensed-BoldItalic.woff",
+		"RobotoCondensed-Italic.woff",
+		"RobotoCondensed-Light.woff",
+		"RobotoCondensed-LightItalic.woff",
+		"RobotoCondensed-Regular.woff",
+		"RobotoSlab-Bold.woff",
+		"RobotoSlab-Light.woff",
+		"RobotoSlab-Regular.woff",
+		"RopaMixPro-Black.woff",
+		"RopaMixPro-BlackItalic.woff",
+		"RopaMixPro-Bold.woff",
+		"RopaMixPro-BoldItalic.woff",
+		"RopaMixPro-ExtraBold.woff",
+		"RopaMixPro-ExtraBoldItalic.woff",
+		"RopaMixPro-ExtraLight.woff",
+		"RopaMixPro-ExtraLightItalic.woff",
+		"RopaMixPro-Italic.woff",
+		"RopaMixPro-Light.woff",
+		"RopaMixPro-LightItalic.woff",
+		"RopaMixPro-Medium.woff",
+		"RopaMixPro-MediumItalic.woff",
+		"RopaMixPro-Regular.woff",
+		"RopaMixPro-Thin.woff",
+		"RopaMixPro-ThinItalic.woff",
+		"RopaSansPro-Black.woff",
+		"RopaSansPro-BlackItalic.woff",
+		"RopaSansPro-Bold.woff",
+		"RopaSansPro-BoldItalic.woff",
+		"RopaSansPro-ExtraBold.woff",
+		"RopaSansPro-ExtraBoldItalic.woff",
+		"RopaSansPro-ExtraLight.woff",
+		"RopaSansPro-ExtraLightItalic.woff",
+		"RopaSansPro-Italic.woff",
+		"RopaSansPro-Light.woff",
+		"RopaSansPro-LightItalic.woff",
+		"RopaSansPro-Medium.woff",
+		"RopaSansPro-MediumItalic.woff",
+		"RopaSansPro-Regular.woff",
+		"RopaSansPro-Thin.woff",
+		"RopaSansPro-ThinItalic.woff",
+		"Rubik-Black.woff",
+		"Rubik-BlackItalic.woff",
+		"Rubik-Bold.woff",
+		"Rubik-BoldItalic.woff",
+		"Rubik-Italic.woff",
+		"Rubik-Light.woff",
+		"Rubik-LightItalic.woff",
+		"Rubik-Medium.woff",
+		"Rubik-MediumItalic.woff",
+		"Rubik-Regular.woff",
+		"RuslanDisplay-Regular.woff",
+		"RussoOne-Regular.woff",
+		"RussoSans-Bold.woff",
+		"SamoSansPro-Black.woff",
+		"SamoSansPro-BlackItalic.woff",
+		"SamoSansPro-Bold.woff",
+		"SamoSansPro-BoldItalic.woff",
+		"SamoSansPro-Hair.woff",
+		"SamoSansPro-HairItalic.woff",
+		"SamoSansPro-Italic.woff",
+		"SamoSansPro-Light.woff",
+		"SamoSansPro-LightItalic.woff",
+		"SamoSansPro-Medium.woff",
+		"SamoSansPro-MediumItalic.woff",
+		"SamoSansPro-Regular.woff",
+		"SamoSansPro-Thin.woff",
+		"SamoSansPro-ThinItalic.woff",
+		"SamoSansPro-Ultra.woff",
+		"SamoSansPro-UltraItalic.woff",
+		"SansusWebissimo-Italic.woff",
+		"SansusWebissimo-Regular.woff",
+		"SegoeUI-Bold.woff",
+		"SegoeUI-Italic.woff",
+		"SegoeUI-Light.woff",
+		"SegoeUI-Regular.woff",
+		"SegoeUI-SemiBold.woff",
+		"Sfera-Italic.woff",
+		"SourceSansPro-Bold.woff",
+		"SourceSansPro-Light.woff",
+		"SourceSansPro-Regular.woff",
+		"StalinistOne-Regular.woff",
+		"StTransmission-ExtraBold.woff",
+		"StTransmission-Thin.woff",
+		"TenorSans-Regular.woff",
+		"TheanoDidot-Regular.woff",
+		"TheanoModern-Regular.woff",
+		"TickerTape-Regular.woff",
+		"times.ttf",
+		"timesbd.ttf",
+		"timesbi.ttf",
+		"timesi.ttf",
+		"TimesNewRoman-Bold.woff",
+		"TimesNewRoman-BoldItalic.woff",
+		"TimesNewRoman-Italic.woff",
+		"TimesNewRoman-Regular.woff",
+		"UbuntuCondensed-Regular.woff",
+		"UbuntuMono-Bold.woff",
+		"UbuntuMono-BoldItalic.woff",
+		"UbuntuMono-Italic.woff",
+		"UbuntuMono-Regular.woff",
+		"UniSans-Heavy.woff",
+		"UniSans-HeavyItalic.woff",
+		"UniSans-Thin.woff",
+		"UniSans-ThinItalic.woff",
+		"VDSCompensated-Light.woff",
+		"VDSCompensated-LightItalic.woff",
+		"VremenaGrotesk-Bold.woff",
+		"VremenaGrotesk-BoldItalic.woff",
+		"VremenaGrotesk-Book.woff",
+		"VremenaGrotesk-BookItalic.woff",
+		"VremenaGrotesk-Italic.woff",
+		"VremenaGrotesk-Medium.woff",
+		"VremenaGrotesk-MediumItalic.woff",
+		"VremenaGrotesk-Regular.woff",
+		"WeblySleekUI-Light.woff",
+		"WeblySleekUI-LightItalic.woff",
+		"WeblySleekUI-SemiBold.woff",
+		"WeblySleekUI-SemiBoldItalic.woff",
+		"WeblySleekUI-SemiLight.woff",
+		"WeblySleekUI-SemiLightItalic.woff",
+		"WebServeroff-Italic.woff",
+		"WebServeroff-Regular.woff",
+		"Whitney-Book.woff",
+		"Whitney-Light.woff",
+		"Whitney-Medium.woff",
+		"Whitney-SemiBold.woff",
+		"YanoneKaffeesatz-Bold.woff",
+		"YanoneKaffeesatz-ExtraLight.woff",
+		"YanoneKaffeesatz-Light.woff",
+		"YanoneKaffeesatz-Regular.woff",
+		"YesevaOne-Regular.ttf",
+		"YesevaOne-Regular.woff",
+		"ZionTrainPro-Regular.ttf",
+		"ZionTrainPro-Regular.woff"
+	];
+	var loadedFontNames = fontFiles.map(name => {
+	    const fontFaceName = name.split(".")[0].replaceAll(/[\-\_]/g, " "); 
+		const myFont = new FontFace(fontFaceName, 'url(fonts/'+encodeURIComponent(name)+')');
+		myFont.load().then(()=> {
+			document.fonts.add(myFont);
+		});
+		return fontFaceName;
+	});
+	_initRteEdit({
+		fontNameItems: loadedFontNames
+	});
 </script>
 <script src="richtexteditor/patch.js"></script>
 </body>
